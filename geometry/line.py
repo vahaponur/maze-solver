@@ -5,6 +5,16 @@ class Point:
 
     def __add__(self, o):
         return Point(self.x + o.x , self.y + o.y)
+    def __sub__(self, o):
+        return Point(self.x - o.x, self.y-o.y)
+    def __truediv__(self, other):
+        if isinstance(other,int) or isinstance(other,float):
+            try:
+                return Point(self.x / other, self.y/other)
+            except Exception as e:
+                print(e)
+        return Point(self.x/other.x,self.y/other.y)
+
 
 class Line:
     def __init__(self, p1, p2):
