@@ -34,8 +34,11 @@ class Maze:
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"Elapsed time: {elapsed_time:.6f} seconds")
+        self._reset_cells_visited()
 
     def _break_entrance_and_exit(self):
+        if self.window is None:
+            return
         self._cells[0][0].has_left_wall = False
         self.__draw_cell(0, 0)
         self._cells[self.num_cols - 1][self.num_rows - 1].has_right_wall = False
@@ -49,12 +52,18 @@ class Maze:
 
     def __animate(self):
         self.window.redraw()
-        time.sleep(0.05)
+        time.sleep(0.03)
+    def _reset_cells_visited(self):
 
+        for i in range(self.num_cols):
+            for j in range(self.num_rows):
+                self._cells[i][j].visited=False
     def _break_wall_r(self, i, j):
+        if self.window is None:
+            return
         ref = self._cells[i][j]
         ref.visited = True
-        last= self._cells[self.num_cols-1][self.num_rows-1]
+        last = self._cells[self.num_cols-1][self.num_rows-1]
 
         while True:
             if last.visited:
@@ -134,6 +143,83 @@ class Maze:
 
             if adj_to_go_indexes is not None:
                 self._break_wall_r(adj_to_go_indexes.x, adj_to_go_indexes.y)
+
+    def solver(self):
+        return self.__solve_r(0,0)
+
+    #TODO:SOLVE MAZE
+    def __solve_r(self,i,j):
+        if i == self.num_cols-1 and j == self.num_rows-1:
+            return True
+        self.__animate()
+        ref = self._cells[i][j]
+        ref.visited=True
+        adjs = self.get_adjacents(i,j)
+        for adj in adjs:
+            adjacent_cell = self._cells[adj.x][adj.y]
+            if not adjacent_cell.visited and self.has_road_between(i,j,adjacent_cell):
+                ref.draw_move(adjacent_cell)
+                result = self.__solve_r(adj.x,adj.y)
+                if result:
+                    return True
+                ref.draw_move(adjacent_cell,True)
+        return False
+
+    def get_adjacents(self,i,j):
+        ref = self._cells[i][j]
+        if ref is None:
+            return
+        adjacents = []
+
+        if j > 0:
+            pt = Point(i, j - 1)
+            adjacents.append(pt)
+
+        if j < len(self._cells[0]) - 1:
+            pb = Point(i, j + 1)
+            adjacents.append(pb)
+
+        if i > 0:
+            pl = Point(i - 1, j)
+            adjacents.append(pl)
+
+        if i < len(self._cells) - 1:
+            pr = Point(i + 1, j)
+            adjacents.append(pr)
+
+
+        return adjacents
+    def has_road_between(self,i,j,cell2: Cell):
+        ref = self._cells[i][j]
+        adjs = self.get_adjacents(i,j)
+        cell2pos=None
+
+        for adj in adjs:
+            if self._cells[adj.x][adj.y] == cell2:
+                cell2pos = Point(adj.x,adj.y)
+        if cell2pos is None:
+            return False
+        adj=cell2pos
+        top_adj = j - adj.y == 1
+        bottom_adj = adj.y-j == 1
+        letf_adj=i-adj.x == 1
+        right_adj=adj.x-i==1
+        if letf_adj and not ref.has_left_wall and not cell2.has_right_wall:
+            return True
+        if right_adj and not ref.has_right_wall and not cell2.has_left_wall:
+            return True
+        if top_adj and not ref.has_top_wall and not cell2.has_bottom_wall:
+            return True
+        if bottom_adj and not ref.has_bottom_wall and not cell2.has_top_wall:
+            return True
+        return False
+
+
+
+
+
+
+
 
 
 
