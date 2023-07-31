@@ -15,9 +15,11 @@ class Maze:
         self.__create_cells()
     def __create_cells(self):
         self.__cells = [0 for _ in range(self.num_rows * self.num_cols)]
+        term = 0
         for i in range(self.num_rows):
             for j in range(self.num_cols):
-                self.__cells[i*j]=self.__draw_cell( i, j)
+                self.__cells[term]=self.__draw_cell( i, j)
+                term +=1
     def __draw_cell(self,i,j):
         next_p = Point(self.x1, self.y1) + Point(i * self.cell_size_x, j * self.cell_size_y)
         cell = Cell([True, True, True, True], next_p, next_p + Point(self.cell_size_x, self.cell_size_y), self.window)
@@ -26,4 +28,4 @@ class Maze:
         return cell
     def __animate(self):
         self.window.redraw()
-        time.sleep(0.1)
+        time.sleep(0.05)
