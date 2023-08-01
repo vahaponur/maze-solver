@@ -2,6 +2,10 @@
 
 It is a python project that creates a random maze (bfs) and solves it (dfs)
 
+
+![](https://s11.gifyu.com/images/Sc7G8.gif)
+
+
 ## Installation
 
 Clone the project
